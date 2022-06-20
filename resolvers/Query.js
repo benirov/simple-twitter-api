@@ -1,15 +1,20 @@
 const { ObjectId } = require('mongodb');
 
-const usuarios = async (parent, args, { usuarios }) => {
-    console.log("Usuarios", usuarios);
-    return await usuarios.find({}).toArray();
+const users = async (parent, args, { User }) => {
+    const co =  await User.find({}).toArray();
+    return co;
 }
 
-const usuario = async (parent, args, { usuarios }) => {
-    return await usuarios.findOne({_id: ObjectId(args.id)});
+const user = async (parent, args, { User }) => {
+    return await User.findOne({_id: ObjectId(args.id)});
+}
+
+const posts = async (parent, args, { Post }) => {
+    return await Post.find({}).toArray();
 }
 
 module.exports = {
-    usuarios,
-    usuario
+    users,
+    user,
+    posts
 }
