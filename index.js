@@ -1,7 +1,8 @@
 const { ApolloServer, PubSub } = require('apollo-server');
-const { createServer } =  require('http');
+const { createServer } =  require('https');
 const { MongoClient } = require('mongodb');
-global.pubsub = pubsub = new PubSub();
+require('events').EventEmitter.prototype._maxListeners = 100;
+global.pubsub  = new PubSub();
 //importamos schema
 const typeDefs = require('./schemas');
 
@@ -17,7 +18,7 @@ const resolvers = {
     Mutation,
     Subscription: {
         newPost: {
-            subscribe: () => pubsub.asyncIterator([NEW_POST])
+            subscribe: () => global.pubsub.asyncIterator([NEW_POST])
         }
     }
 }
@@ -28,7 +29,7 @@ MongoClient.connect(urlmongo, { useNewUrlParser: true }, function (err, client) 
         throw err;
 
     const db = client.db('simpletwitter');
-
+    let pub = global.pubsub;
     const server = new ApolloServer({
         typeDefs,
         resolvers,
@@ -36,7 +37,7 @@ MongoClient.connect(urlmongo, { useNewUrlParser: true }, function (err, client) 
         context: {
             User: db.collection('User'),
             Post: db.collection('Post'),
-            pubsub
+            pub
         }
     });
 
@@ -50,7 +51,7 @@ MongoClient.connect(urlmongo, { useNewUrlParser: true }, function (err, client) 
 
     // Bind it to port and start listening
         websocketServer.listen(WS_PORT, () => console.log(
-            `Websocket Server is now running on http://localhost:${WS_PORT}`
+            `Websocket Server is now running on ws://localhost:${WS_PORT}`
         ));
     const schema = makeExecutableSchema({ typeDefs, resolvers });
     const subscriptionServer = SubscriptionServer.create(

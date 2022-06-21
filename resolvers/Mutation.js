@@ -8,7 +8,7 @@ const addUser = async (parent, args, { User }) => {
 const addPost = async (parent, args, { Post }) => {
     args.post["date"] = new Date(Date.now()).toUTCString();
     let result = await Post.insertOne(args.post);
-    pubsub.publish('NEW_POST', { newPost:result.ops[0]});
+    global.pubsub.publish('NEW_POST', { newPost:result.ops[0]});
     return result.ops[0];
 }
 
