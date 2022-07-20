@@ -41,6 +41,8 @@ MongoClient.connect(urlmongo, { useNewUrlParser: true }, function (err, client) 
                 console.log(connectionParams, webSocket)
             },
         },
+        playground: true,
+        introspection: true,
         cors: {
             origin: ["https://bucolic-swan-ec550d.netlify.app/", "http://localhost:3000"]
           },
