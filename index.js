@@ -48,7 +48,20 @@ MongoClient.connect(urlmongo, { useNewUrlParser: true }, function (err, client) 
         },
         playground: true,
         introspection: true,
-        cors: cors(corsOptions),
+        cors: {
+            credentials: true,
+            origin: (origin, callback) => {
+                const whitelist = [
+                    "https://bucolic-swan-ec550d.netlify.app",
+                ];
+    
+                if (whitelist.indexOf(origin) !== -1) {
+                    callback(null, true)
+                } else {
+                    callback(new Error("Not allowed by CORS"))
+                }
+            }
+        }
     });
     
     //const WS_PORT = process.env.WS_PORT || 3200;
