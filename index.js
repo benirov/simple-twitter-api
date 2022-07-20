@@ -1,13 +1,10 @@
 const { ApolloServer, PubSub } = require('apollo-server');
-const { createServer } =  require('https');
 const { MongoClient } = require('mongodb');
 require('events').EventEmitter.prototype._maxListeners = 100;
 global.pubsub  = new PubSub();
 //importamos schema
 const typeDefs = require('./schemas');
 
-const { execute, subscribe } = require('graphql');
-const { SubscriptionServer } = require('subscriptions-transport-ws');
 const { makeExecutableSchema } = require('@graphql-tools/schema');
 const NEW_POST = 'NEW_POST';
 //2. importamos Resolvers
@@ -38,37 +35,31 @@ MongoClient.connect(urlmongo, { useNewUrlParser: true }, function (err, client) 
             User: db.collection('User'),
             Post: db.collection('Post'),
             pub
-        }
+        },
+        subscriptions: {
+            onConnect: (connectionParams, webSocket) => {
+                console.log(connectionParams, webSocket)
+            },
+        },
+        cors: {
+            origin: ["https://bucolic-swan-ec550d.netlify.app/", "http://localhost:3000"]
+          },
     });
-
-    const WS_PORT = process.env.WS_PORT || 3200;
+    
+    //const WS_PORT = process.env.WS_PORT || 3200;
 
     // Create WebSocket listener server
-    const websocketServer = createServer((request, response) => {
-        response.writeHead(404);
-        response.end();
-    });
+  
 
     // Bind it to port and start listening
-        websocketServer.listen(WS_PORT, () => console.log(
-            `Websocket Server is now running on ws://localhost:${WS_PORT}`
-        ));
     const schema = makeExecutableSchema({ typeDefs, resolvers });
-    const subscriptionServer = SubscriptionServer.create(
-        {
-            schema,
-            execute,
-            subscribe,
-        },
-        {
-            server: websocketServer,
-            path: '/subscriptions',
-        },
-    );
+    
 
     
 
-    server.listen().then(({ url }) => {
-        console.log(`🚀 Server ready at ${url}`);
-    });
+    server.listen(process.env.PORT || 5000).then(({ url, subscriptionsUrl }) => {
+        console.log(`🚀 Server ready at ${url}`)
+        console.log(`🚀 Subscriptions ready at ${subscriptionsUrl}`)
+
+      })
 });
