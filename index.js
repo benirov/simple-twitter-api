@@ -25,6 +25,11 @@ MongoClient.connect(urlmongo, { useNewUrlParser: true }, function (err, client) 
     if (err)
         throw err;
 
+    const corsOptions = {
+        origin: 'https://bucolic-swan-ec550d.netlify.app',
+        credentials: true
+    }
+
     const db = client.db('simpletwitter');
     let pub = global.pubsub;
     const server = new ApolloServer({
@@ -43,9 +48,7 @@ MongoClient.connect(urlmongo, { useNewUrlParser: true }, function (err, client) 
         },
         playground: true,
         introspection: true,
-        cors: {
-            origin: ["https://bucolic-swan-ec550d.netlify.app", "http://localhost:3000"]
-          },
+        cors: cors(corsOptions),
     });
     
     //const WS_PORT = process.env.WS_PORT || 3200;
